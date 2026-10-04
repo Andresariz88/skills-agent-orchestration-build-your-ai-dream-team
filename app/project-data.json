@@ -1,0 +1,32 @@
+{
+  "projects": [
+    {
+      "name": "Customer Portal Refresh",
+      "owner": "Maya Chen",
+      "status": "On track",
+      "recentActivity": "Completed the account settings review and shared updated prototypes with the support team.",
+      "priority": "High"
+    },
+    {
+      "name": "Mobile Checkout",
+      "owner": "Jordan Patel",
+      "status": "At risk",
+      "recentActivity": "Payment provider sandbox access is still pending; integration testing is ready to begin.",
+      "priority": "Critical"
+    },
+    {
+      "name": "Analytics Foundations",
+      "owner": "Sam Rivera",
+      "status": "Planning",
+      "recentActivity": "Aligned on the first set of product events and drafted the tracking specification.",
+      "priority": "Medium"
+    },
+    {
+      "name": "Help Center Migration",
+      "owner": "Avery Brooks",
+      "status": "Complete",
+      "recentActivity": "Published the final knowledge-base articles and handed off the maintenance guide.",
+      "priority": "Low"
+    }
+  ]
+}

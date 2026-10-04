@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="A clear, at-a-glance view of project status, ownership, and recent activity.">
+    <title>Project Pulse</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header>
+      <h1>Project Pulse</h1>
+      <p>A quick view of what each team is building, who owns it, and what happened most recently.</p>
+    </header>
+
+    <main>
+      <section aria-labelledby="projects-heading">
+        <header>
+          <h2 id="projects-heading">Projects</h2>
+          <p>Track current work, priorities, and the latest updates.</p>
+        </header>
+        <p id="dashboard-state" role="status" aria-live="polite">Loading projects…</p>
+        <div id="project-list" class="dashboard" aria-busy="true"></div>
+      </section>
+    </main>
+
+    <footer>
+      <p>Project updates at a glance.</p>
+    </footer>
+
+    <script>
+      const projectList = document.querySelector("#project-list");
+      const dashboardState = document.querySelector("#dashboard-state");
+
+      function textOrFallback(value, fallback) {
+        return typeof value === "string" && value.trim() ? value.trim() : fallback;
+      }
+
+      function addText(parent, tagName, className, text) {
+        const element = document.createElement(tagName);
+        if (className) element.className = className;
+        element.textContent = text;
+        parent.append(element);
+        return element;
+      }
+
+      function renderProject(project) {
+        const card = document.createElement("article");
+        card.className = "project-card";
+
+        const cardHeader = document.createElement("header");
+        cardHeader.className = "project-card__header";
+        addText(cardHeader, "h3", "", textOrFallback(project.name, "Untitled project"));
+
+        const badges = document.createElement("div");
+        badges.className = "project-card__meta";
+
+        const status = addText(badges, "span", "project-card__status", textOrFallback(project.status, "Status unavailable"));
+        status.setAttribute("data-status", textOrFallback(project.status, "").toLowerCase().replaceAll(" ", "-"));
+
+        const priority = addText(badges, "span", "project-card__priority", `Priority: ${textOrFallback(project.priority, "Not set")}`);
+        priority.setAttribute("data-priority", textOrFallback(project.priority, "").toLowerCase());
+
+        cardHeader.append(badges);
+        card.append(cardHeader);
+
+        const owner = document.createElement("p");
+        owner.className = "project-card__meta";
+        addText(owner, "strong", "", "Owner: ");
+        owner.append(document.createTextNode(textOrFallback(project.owner, "Unassigned")));
+        card.append(owner);
+
+        const activity = document.createElement("div");
+        activity.className = "project-card__activity";
+        addText(activity, "strong", "", "Recent activity");
+        addText(activity, "p", "", textOrFallback(project.recentActivity, "No recent activity."));
+        card.append(activity);
+
+        return card;
+      }
+
+      async function loadProjects() {
+        try {
+          const response = await fetch("project-data.json");
+          if (!response.ok) throw new Error(`Project data request failed (${response.status}).`);
+
+          const data = await response.json();
+          if (!data || !Array.isArray(data.projects)) {
+            throw new Error("Project data must contain a projects array.");
+          }
+
+          projectList.replaceChildren();
+          if (data.projects.length === 0) {
+            dashboardState.textContent = "There are no projects to show yet.";
+            return;
+          }
+
+          const cards = data.projects.map(renderProject);
+          projectList.append(...cards);
+          dashboardState.textContent = "";
+        } catch {
+          projectList.replaceChildren();
+          dashboardState.setAttribute("role", "alert");
+          dashboardState.textContent = "Projects couldn’t be loaded. Please check the project data and try again.";
+        } finally {
+          projectList.setAttribute("aria-busy", "false");
+        }
+      }
+
+      loadProjects();
+    </script>
+  </body>
+</html>
